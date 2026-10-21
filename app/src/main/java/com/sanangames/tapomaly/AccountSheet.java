@@ -203,8 +203,12 @@ public final class AccountSheet {
 
     private static void present(Activity activity, AlertDialog dialog, View content, Host host) {
         LinearLayout shell = new LinearLayout(activity);
+        shell.setOrientation(LinearLayout.VERTICAL);
         shell.setBackground(dialogBackground(activity));
-        shell.addView(content);
+        shell.addView(content, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
         dialog.setView(shell);
         dialog.setCancelable(true);
         dialog.setOnDismissListener(d -> {
@@ -229,6 +233,10 @@ public final class AccountSheet {
     private static LinearLayout column(Activity activity) {
         LinearLayout content = new LinearLayout(activity);
         content.setOrientation(LinearLayout.VERTICAL);
+        content.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
         content.setPadding(dp(activity, 20), dp(activity, 18), dp(activity, 20), dp(activity, 16));
         return content;
     }
