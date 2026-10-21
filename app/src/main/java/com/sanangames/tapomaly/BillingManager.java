@@ -19,6 +19,7 @@ import com.android.billingclient.api.PendingPurchasesParams;
 import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryProductDetailsResult;
 import com.android.billingclient.api.QueryPurchasesParams;
 
 import java.util.ArrayList;
@@ -236,17 +237,25 @@ public final class BillingManager implements com.android.billingclient.api.Purch
                 .setProductList(list)
                 .build();
 
-        billingClient.queryProductDetailsAsync(params, (billingResult, productDetailsList) -> MAIN.post(() -> {
+        billingClient.queryProductDetailsAsync(params, (billingResult, result) -> MAIN.post(() -> {
             products.clear();
-            if (productDetailsList != null) {
-                for (ProductDetails details : productDetailsList) {
-                    products.put(details.getProductId(), details);
-                }
+            List<ProductDetails> productDetailsList = productDetails(billingResult, result);
+            for (ProductDetails details : productDetailsList) {
+                products.put(details.getProductId(), details);
             }
             productsQueried = true;
             Log.i(TAG, "Play products loaded: " + products.size());
             notifyProductsChanged();
         }));
+    }
+
+    private static List<ProductDetails> productDetails(BillingResult billingResult, QueryProductDetailsResult result) {
+        if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK
+                || result == null
+                || result.getProductDetailsList() == null) {
+            return Collections.emptyList();
+        }
+        return result.getProductDetailsList();
     }
 
     private void queryOwned() {
