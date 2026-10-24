@@ -3,17 +3,25 @@ package com.sanangames.tapomaly;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Collections;
+
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnShop.setOnClickListener(v -> openShop());
         btnAccount.setOnClickListener(v -> openAccount());
+        keepMenuButtonsBelowSystemBars();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -130,6 +139,50 @@ public class MainActivity extends AppCompatActivity {
                 refreshAccount();
             }
         });
+    }
+
+    private void keepMenuButtonsBelowSystemBars() {
+        View topBar = findViewById(R.id.menuTopBar);
+        final int padStart = topBar.getPaddingStart();
+        final int padTop = topBar.getPaddingTop();
+        final int padEnd = topBar.getPaddingEnd();
+        final int padBottom = topBar.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(topBar, (view, windowInsets) -> {
+            placeTopBarClearOfSystem(view, windowInsets, padStart, padTop, padEnd, padBottom);
+            return windowInsets;
+        });
+        topBar.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                keepShopTappable()
+        );
+        ViewCompat.requestApplyInsets(topBar);
+    }
+
+    private void placeTopBarClearOfSystem(
+            View view,
+            WindowInsetsCompat windowInsets,
+            int padStart,
+            int padTop,
+            int padEnd,
+            int padBottom
+    ) {
+        Insets bars = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+        );
+        int top = Math.max(padTop, bars.top + dpToPx(6));
+        view.setPadding(padStart + bars.left, top, padEnd + bars.right, padBottom);
+    }
+
+    private void keepShopTappable() {
+        View topBar = findViewById(R.id.menuTopBar);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || topBar == null || btnShop == null || btnShop.getWidth() == 0) {
+            return;
+        }
+        Rect hit = new Rect();
+        btnShop.getHitRect(hit);
+        Rect limit = new Rect(0, 0, topBar.getWidth(), topBar.getHeight());
+        if (hit.intersect(limit)) {
+            topBar.setSystemGestureExclusionRects(Collections.singletonList(new Rect(hit)));
+        }
     }
 
     private void openShop() {

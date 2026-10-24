@@ -60,6 +60,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/menuTopBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
@@ -75,8 +76,11 @@
             android:layout_height="40dp"
             android:background="@drawable/btn_secondary"
             android:clickable="true"
+            android:ellipsize="end"
             android:focusable="true"
             android:gravity="center"
+            android:maxLines="1"
+            android:maxWidth="132dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:text="Sign in"
