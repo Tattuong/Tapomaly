@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -269,7 +270,11 @@ public final class StoreApi {
     }
 
     private static String urlEncode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
+        try {
+            return URLEncoder.encode(value, "UTF-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException error) {
+            return value;
+        }
     }
 
     private static void postError(Result result, String message) {
